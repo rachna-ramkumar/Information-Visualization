@@ -1,0 +1,65 @@
+<html>
+    <head>
+		<link rel="stylesheet" href="style.css">
+		<script src="https://d3js.org/d3.v5.js"></script>
+		<script src="aiddata-processing.js"></script>
+		<script src="aiddata-config.js"></script>
+		<script src="aiddata-vis1.js"></script>
+		<script src="aiddata-vis2.js"></script>
+		<script src="aiddata-vis3.js"></script>
+        <script src="aiddata-main.js"></script>
+	</head>
+<style>
+    
+    body {
+            font-family: Lucida Console, Monaco, monospace
+        }
+
+        h1 {
+            background-color: white;
+            color: #672a99;
+            padding: 10px;
+        }
+    svg {
+        border: solid 1px #a9a9a9;
+    }
+
+    h2 {
+        font-size: 20px;
+        font: Monaco;
+    }</style>
+
+    <body>
+        <div class="vis">
+        <p align="center"> Rachna Ramkumar, rr3656</p><br/>
+            <p align="center">Mini-project 2</p><br/>
+		
+        <h1 align="center"><u>Visualization 2</h1></u>  <br/> 
+      <h2><u>Question</u>:What are the top 10 purposes of
+disbursements (in terms of total amount of disbursement) and how does their
+relative amount compare over time? E.g., are there purposes that tend to be
+prominent for a period of time and others that become more prominent during other
+periods?</h2><br/>
+    <h2><u>Explanation</u>:For this visualization, we can also use a stacked Area Chart with all the top 10 Coalesced
+Purposes, on the same chart. Since we're going to represent all purposes together, it will
+be hard for us to distinguish amongst each of them, and so to make sure we can
+differentiate amongst each one of them quickly, we will represent each purpose with a
+unique color. To visualize the given problem statement on a stacked area chart, we will
+represent the time on the x-axis and the amount change on the y-axis. For Example, refer
+a sample chart below,
+    <br /><br />
+    <u>PROS</u>:Since we are using one graph for all of the top 10 purposes, we can easily save
+space and also will be able to spot out the comparison between one another more
+evidently.<br /><br />
+    <u>CONS</u>: Again, since there are too many countries it becomes confusing when there are too many bars on the chart.<br /><br />
+    <u>SOLVED</u>: Analyzing the dataset and pre-processing it to scale it to visualize into this chart is
+tricky and challenging also, mainly because we will have to split them based on the
+purposes and identify only the top 10 of those. Although, since we are representing all of
+them together, we can spot the peaks more visibly than the first solution mentioned.
+
+</h2><br /><br />
+		<svg id="Vis2Chart"></svg>
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    
+    body {
+            font-family: Lucida Console, Monaco, monospace
+        }
+
+        h1 {
+            background-color: white;
+            color: #672a99;
+            padding: 10px;
+        }
+    
+    h2 {
+        font-size: 20px;
+        font: Monaco;
+    }
+
+.bar--positive {
+  fill: rebeccapurple;
+}
+
+.bar--negative {
+  fill: pink;
+}
+    
+    .svg text{
+        font: 1px Lucida Console;
+    }
+
+.axis text {
+  font: 10px Lucida Console;
+}
+    
+    .grid .tick {
+    stroke: #969696;
+    opacity: 0.1;
+}
+.grid path {
+      stroke-width: 0;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+    svg {
+        border: solid 1px #a9a9a9;
+    }
+    
+    .mainView{
+            display: flex;
+            flex-direction: row;
+        }
+
+    .tooltip {  
+    position: absolute;     
+    text-align: center;     
+    width: 120px;         
+    height: 30px;         
+    padding: 2px;       
+    font: 13px Lucida Console;    
+    background: #c6a3ff;  
+    border: solid 1px #ffffff;    
+    border-radius: 3px;     
+    pointer-events: none;     
+}
+    
+</style>
+<body>
+   <div id="container">
+            <p>Rachna Ramkumar, rr3656</p>
+            <p>Mini-project 1</p></div>
+    <h1 align="center"><u>Visualization 1</u></h1>
+      <h4><u>Question</u>:How do the countries compare in terms of how much they receive and donate from other countries? Are there countries that donate much more than they receive or receive much more than they donate?</h4><br/>
+    <h4><u>Explanation</u>:This problem statement can  be visualised using a diverging bar chart. Where countries will be on the y-axis and the funds in billion $ will be on the x-axis. Two haves with two different colours : (1) Donation Received  (2) Donation Offered. For example, refer the figure given below.
+    <br /><br />
+    <u>PROS</u>:This Visualisation can represent the amount donated and received by each country  distinctly which will help us draw conclusions on the facts about a country whether it has donated more or received more.<br /><br />
+    <u>CONS</u>: Again, since there are too many countries it becomes confusing when there are too many bars on the chart.<br /><br />
+    <u>SOLVED</u>: The Cons have been solved by adding a feature. When the moudse point is moved over the bars on the graph, the country name and the amount in USD are being Displayed.
+
+</h4>
+    <h2 align="center">The Amount donated and received by countries.</h2>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var margin = {top: 20, right: 30, bottom: 40, left: 170},
+    width = 1000 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.ordinal()
+    .rangeRoundBands([0, height], 0.1);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .tickFormat(Math.abs);
+    
+function make_xaxis() {
+    return d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+}
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickPadding(6);
+    
+var myAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickSize(0);
+    
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden");
+    
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("data.csv", type, function(error, data) {
+  x.domain(d3.extent(data, function(d) { return d.value; })).nice();
+  y.domain(data.map(function(d) { return d.name; }));
+    
+
+svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", function(d) { return "bar bar--" + (d.value < 0 ? "negative" : "positive"); })
+      .attr("x", function(d) { return x(Math.min(0, d.value)); })
+      .attr("y", function(d) { return y(d.name); })
+      .attr("width", function(d) { return Math.abs(x(d.value) - x(0)); })
+      .attr("height", y.rangeBand())
+    .on("mouseover", function(d){return tooltip.style("visibility", "visible").html(d.name + "<br/>" + "$" + Math.abs(d.value) + " B");})
+    .on("mousemove", function(d){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px")
+                                                .html(d.name + "<br/>" + Math.abs(d.value) + " Billion USD");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+      
+    
+svg.append("text")
+    .attr('x', -(height / 2) + 70)
+    .attr('y', -150)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle')
+    .text('Countries')
+
+svg.append('text')
+    .attr('x', width / 2 + 40)
+    .attr('y', height + 35)
+    .attr('text-anchor', 'middle')
+    .text('Amount)')
+    
+svg.append("g")
+    .attr("class", "grid")
+    .attr("transform", "translate(0," + height + ")")
+    .call(make_xaxis()
+         .tickSize(-height, 0, 0)
+         .tickFormat(""))
+  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  var middleAxis = svg.append("g")
+      .attr("class", "my axis")
+      .attr("transform", "translate(" + x(0) + ",0)")
+      .call(myAxis);
+    
+    middleAxis.selectAll("text").remove();
+    
+    svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + ",0)")
+      .call(yAxis);
+});
+    
+svg.append("circle").attr("cx",width - 55).attr("cy",10).attr("r", 6).style("fill", "rebeccapurple")
+svg.append("circle").attr("cx",width - 55).attr("cy",30).attr("r", 6).style("fill", "pink")
+svg.append("text").attr("x", width - 45).attr("y", 10).text("Received").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", width - 45).attr("y", 30).text("Donated").style("font-size", "15px").attr("alignment-baseline","middle")
+
+function type(d) {
+  d.value = +d.value;
+  return d;
+}
+
+</script>
+    

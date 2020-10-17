@@ -1,0 +1,239 @@
+<html>
+    
+<script src="d3.js"></script>
+
+<head>
+    <style>
+        body {
+            font-family: Lucida Console, Monaco, monospace
+        }
+
+        h1 {
+            background-color: white;
+            color:  #672a99;
+            padding: 10px;
+        }
+        
+        h2 { 
+          font-size: 15px;
+        }
+        
+        svg {
+            border-style: solid;
+            border-width: 1px;
+            border-color: black;
+            margin-right: 5px;
+        }
+   
+        .mainView {
+            display: flex;
+            flex-direction: row;
+        }
+        
+        #AirlinesChart{
+            width: 200px;
+        }
+        
+         .tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 120px;					
+    height: 52px;					
+    padding: 2px;				
+    font: 13px Monaco;		
+    background: skyblue;	
+    border: solid 1px #ffffff;		
+    border-radius: 5px;			
+    pointer-events: none;			
+}
+      
+        
+    </style>
+</head>
+
+<body>
+        <div id="container">
+            <p>Rachna Ramkumar, rr3656</p>
+            <p>Mini-project 1</p>
+    <h1 align="center"><u>Visualization 3</u></h1>
+    <h4><u>Question</u>: 3. Are there any major differences in how the top 5 most frequent purposes of disbursements distribute geographically in terms of  countries that receive donations? Are there countries that tend to receive more of certain type of donations than others? </h4>
+    <h4><u>Explanation</u>:For this visualisation we can again use the world map with bubbles on each country. But the difference is that, for this problem statement we shall have one choropleth for one reason for the donation offered/received, therefore we will have a choropleth of the world map for each reason and the bubble size shall determine how big the donation offered/received is. For example, refer the sample chart below,
+    <br /><br />
+    <u>PROS</u>:This will help us identify the major reason a country has received a donation. And also distinctly differentiate the reason that each country is willing to donate for.<br /><br />
+    <u>CONS</u>: The major challenge lies in pre-processing the data. Five major reasons has to be sorted and based on that each bubble map is visualised.  <br /><br />
+    <u>Feature</u>: Moving the cursor over a bubble would indicate the name of the country the bubble is in. <br /><br /></h4>
+    <h1 align="center"><u>GEOGRAPHICAL REPRESENTATION</h1></u>
+    <script>
+
+    let store = {}
+    
+    function loadData() {
+    return Promise.all([
+        d3.json("countries.geo.json"),
+        d3.csv("Agricultural development.csv"),
+        d3.csv("General budget support.csv"),
+        d3.csv("multi.csv"),
+        d3.csv("Multisector aid.csv"),
+        d3.csv("Road.csv"),
+    ]).then(datasets => {
+        store.geoJSON = datasets[0];
+        store.agriculture = datasets[1];
+        store.general = datasets[2];
+        store.industry = datasets[3];
+        store.multi = datasets[4];
+        store.road = datasets[5];
+        return store;
+    })
+    }
+        
+        function getMapConfig(){
+  let width = 500;
+  let height = 300;
+  let container1 = d3.select('#Map1')
+     container1
+        .attr("width", width)
+        .attr("height", height)
+  let container6 = d3.select('#Map6')
+     container6
+        .attr("width", 500)
+        .attr("height", 300)
+  let container2 = d3.select('#Map2')
+     container2
+        .attr("width", width)
+        .attr("height", height)
+  let container3 = d3.select('#Map3')
+     container3
+        .attr("width", width)
+        .attr("height", height)
+  let container4 = d3.select('#Map4')
+     container4
+        .attr("width", width)
+        .attr("height", height)
+  let container5 = d3.select('#Map5')
+     container5
+        .attr("width", width)
+        .attr("height", height)
+  return {width, height, container1, container6, container2, container3, container4, container5}
+}
+        
+        function getMapProjection(config) {
+  let {width, height} = config;
+  let projection = d3.geoMercator()
+  projection.scale(85)
+            .translate([width / 2, height / 2 + 20])
+            
+  store.mapProjection = projection;
+  return projection;
+}
+        function drawBaseMap(container, countries, projection){
+  let path = d3.geoPath().projection(projection)
+  
+  container.selectAll("path").data(countries)
+      .enter().append("path")
+      .attr("d", path)
+      .attr("stroke", "#e0cbca")
+      .attr("fill", "#ffdee3")
+  }
+        function drawMap(geoJeon) {
+    let config = getMapConfig();
+    let projection = getMapProjection(config)
+    drawBaseMap(config.container1, geoJeon.features, projection)
+    drawBaseMap(config.container2, geoJeon.features, projection)
+    drawBaseMap(config.container3, geoJeon.features, projection)
+    drawBaseMap(config.container4, geoJeon.features, projection)
+    drawBaseMap(config.container5, geoJeon.features, projection)
+}
+        
+        
+        function drawAirports(airports, container, color) {
+  let config = getMapConfig(); 
+  let projection = getMapProjection(config) 
+ 
+            
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden");
+        
+  let circles = container.selectAll("circle");
+            
+        circles.data(airports)
+                .enter()
+                .append("circle")
+                .attr("r", function(d) { return (d.radius*1.2);})
+                .attr("cx", d => projection([+d.longitude, +d.latitude])[0])
+                .attr("cy", d => projection([+d.longitude, +d.latitude])[1])
+                .attr("fill", color)
+                .on("mouseover", function(d){return tooltip.style("visibility", "visible").html(d.country);})
+                .on("mousemove", function(d){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px")
+                                                .html(d.country + "<br/>" + (d.amount) + " Billion USD");})
+                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+            
+            
+    
+}
+        
+function drawLegend(container){
+    
+    
+    container.append("circle").attr("r", 10).attr("cx", 25).attr("cy", 20).attr("fill", "#d93a34");
+    container.append("text").attr("x", 45).attr("y", 22).text("Agricultural Development").style("font-size", "15px").attr("alignment-baseline","middle");
+    container.append("circle").attr("r", 10).attr("cx", 25).attr("cy", 50).attr("fill", "purple");
+    container.append("text").attr("x", 45).attr("y", 52).text("General Budget Support").style("font-size", "15px").attr("alignment-baseline","middle");
+    container.append("circle").attr("r", 10).attr("cx", 25).attr("cy", 80).attr("fill", "Blue");
+    container.append("text").attr("x", 45).attr("y", 82).text("Industrial Development").style("font-size", "15px").attr("alignment-baseline","middle");
+    container.append("circle").attr("r", 10).attr("cx", 25).attr("cy", 110).attr("fill", "#7CB80C");
+    container.append("text").attr("x", 45).attr("y", 112).text("Multisector Aid").style("font-size", "15px").attr("alignment-baseline","middle");
+    container.append("circle").attr("r", 10).attr("cx", 25).attr("cy", 140).attr("fill", "#E67A31");
+    container.append("text").attr("x", 45).attr("y", 142).text("Road Transport").style("font-size", "15px").attr("alignment-baseline","middle");
+}
+
+        
+        
+    function showData() {
+        
+        let config = getMapConfig();
+        drawMap(store.geoJSON) 
+        drawAirports(store.agriculture, config.container1, '#d93a34')
+        drawAirports(store.general, config.container2, 'purple')
+        drawAirports(store.industry, config.container3, 'Blue')
+        drawAirports(store.multi, config.container4, '#7CB80C')
+        drawAirports(store.road, config.container5, '#E67A31')
+        drawLegend(config.container6)
+    }
+        loadData().then(showData);
+    </script>
+
+    <div class="mainView">
+        <div>
+            <h2 align="center">Legend</h2>
+            <svg id="Map6"></svg>
+        </div>
+        <div>
+            <h2 align="center">Agricultural Development</h2>
+            <svg id="Map1"></svg>
+        </div>
+
+        <div>
+            <h2 align="center">General Budget Support</h2>
+            <svg id="Map2"></svg>
+        </div></div>
+        <div class="mainView">
+        <div>
+            <h2 align="center">Industrial Development</h2>
+            <svg id="Map3"></svg>
+        </div>  
+        <div>
+            <h2 align="center">Multisector Aid</h2>
+            <svg id="Map4"></svg>
+        </div>
+        <div>
+            <h2 align="center">Road Transport</h2>
+            <svg id="Map5"></svg>
+        </div>
+    </div>
+</body>
+
+</html>

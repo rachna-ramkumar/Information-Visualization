@@ -1,0 +1,14 @@
+{
+  "name": "20f4439950a89b6e",
+  "main": "20f4439950a89b6e@529.js",
+  "version": "529.0.0",
+  "homepage": "https://observablehq.com/d/20f4439950a89b6e",
+  "author": {
+    "name": "Rachna Ramkumar",
+    "url": "https://observablehq.com/@rachna-ramkumar"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}

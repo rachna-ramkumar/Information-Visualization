@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+
+<script src="https://d3js.org/d3.v4.js"></script>
+
+
+<style>
+  
+    body {
+            font-family: Lucida Console, Monaco, monospace
+        }
+    svg {
+        border: solid 1px #a9a9a9;
+
+    }
+    h1 {
+            background-color: white;
+            color: #672a99;
+            padding: 10px;
+        }
+    
+    h2 {
+        font-size: 20px;
+        font: Monaco;
+    }
+
+    .mainView{
+            display: flex;
+            flex-direction: row;
+        }
+    
+    .tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 250px;					
+    height: 150px;					
+    padding: 2px;				
+    font: 13px Lucida Console;		
+    background: #c6a3ff;	
+    border: solid 1px #ffffff;		
+    border-radius: 3px;			
+    pointer-events: none;			
+}
+    .yaxis {
+  font: 13px Lucida Console;
+}
+
+    #my_dataviz{
+        font-family: Lucida Console, Monaco, monospace;
+        background-color: '#b2b59a';
+    }
+    
+    svg {
+        background-color: '#faffff';
+    }
+    
+    .legendlabel{
+        font: 3px;
+    }
+
+
+    div {
+	width: 100px;
+	height: 100px;
+	background-color: white;
+	
+	position: relative;
+	top:0;
+	bottom: 0;
+	left: -0;
+	right: 0;
+	margin: relative;
+}
+    
+</style>
+
+<body>
+   <div id="container"></div>
+            <h1 align="center">Rachna Ramkumar, rr3656</h1>
+            <h1 align="center">Mini-project 3</h1>
+    <h1 align="center"><u>Visualization 1</u></h1>
+      <b><u>Question</u>:<br/> 1.	Create an overview of the relationships between countries so that it is possible to see who donates to whom and how much. The main question one should be able to answer is: who are the major donors and to which countries do they donate the most and how much? And conversely, who are the major receivers and which countries do they receive from the most and how much? We only care about the top 10 recipients and the top 20 donors over time for this question.<br/></b><br/>
+    <u><b>Explanation</u>:</b><br/>This problem statement can be visualised using an Arc Diagram. An arc diagram is a special kind of network graph. It is constituted by nodes that represent entities and by links that show relationships between entities. In arc diagrams, nodes are displayed along a single axis and links are represented with arcs. For example, refer the figure given below,
+    <br /><br />
+    <u><b>PROS</u>:</b><br/>It can highlight clusters and bridges quite well if the node order is optimized and also It allows to display the label of each node, which is often impossible in 2d structure.<br /><br />
+    <u><b>CONS</u>:</b> <br/>Representing all the countries on a single Arc Diagram will be confusing. As there will be too many arcs on the chart. <br /><br />
+    <u><b>SOLVED</u>:</b> <br/>Since We only care about the Top 20, representation wouldnt be clustered as much as we expect. Also since there is an animation added, that would help identify the relationship of countries respectively.
+
+</h3>
+    <h2> Relationship amongst the donated and received countries<span style='font-size:50px;'>&#128176;</span></h2>
+
+<div id="my_dataviz"></div>
+
+<script>
+
+
+var margin = {top: 50, right: 70, bottom: 250, left: 100},
+  width = 1300 - margin.left - margin.right,
+  height = 900 - margin.top - margin.bottom;
+
+
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.json("data.json", function( data) {
+
+  
+  var allNodes = data.nodes.map(function(d){return d.name})
+
+  
+  var x = d3.scalePoint()
+    .range([0, width])
+    .domain(allNodes)
+  
+  var color = d3.scaleOrdinal()
+                .domain([1, 2])
+                .range(['#7f4dff', '#ffbe4d'])
+  
+
+  
+  var nodes = svg
+    .selectAll("mynodes")
+    .data(data.nodes)
+    .enter()
+    .append("circle")
+      .attr("cx", function(d){ return(x(d.name))})
+      .attr("cy", height-30)
+      .attr("r", function(d){ return d.r})
+      .style("fill", function(d){ return color(d.grp)})
+      .attr("stroke", "#c9c9c9")
+
+  
+  var labels = svg
+    .selectAll("mylabels")
+    .data(data.nodes)
+    .enter()
+    .append("text")
+      .attr("x", 0)
+      .attr("y", 0)
+      .text(function(d){ return(d.name)} )
+      .style("text-anchor", "end")
+      .attr("transform", function(d){ return( "translate(" + (x(d.name)) + "," + (height-15) + ")rotate(-60)")})
+      .style("font-size", 10)
+
+  
+  var idToNode = {};
+  data.nodes.forEach(function (n) {
+    idToNode[n.id] = n;
+  });
+
+  var links = svg
+    .selectAll('mylinks')
+    .data(data.links)
+    .enter()
+    .append('path')
+    .attr('d', function (d) {
+      start = x(idToNode[d.source].name)    
+      end = x(idToNode[d.target].name)      
+      return ['M', start, height-30,    
+        'A',                            
+        (start - end)/2, ',',    
+        (start - end)/2, 0, 0, ',',
+        start < end ? 1 : 0, end, ',', height-30] 
+        .join(' ');
+    })
+    .style("fill", "none")
+    .attr("stroke", "black")
+    .style('stroke-width', '1.5')                    
+    .style('opacity', 0.04)
+
+    
+    nodes
+      .on('mouseover', function (d) {
+        
+        nodes.style('fill', "#7d7d7b")
+        d3.select(this).style('fill', function(d){ return color(d.grp)}) 
+        
+        links
+          .style('stroke', function (link_d) { if(link_d.source === d.id) {
+                                                    return '#7f4dff';}
+                                              else if(link_d.target === d.id) {
+                                                  return '#ffbe4d';
+                                              }
+                                             else {
+                                                 return '#7d7d7b';
+                                             }})
+          .style('stroke-width', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? link_d.w : 1;})
+          .style('opacity', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 1 : 0.02;}
+) 
+       labels
+        .style("font-size", function(label_d){ return label_d.name === d.name ? 20 : 12 } )
+        .attr("y", function(label_d){ return label_d.name === d.name ? 10 : 0 } )
+ })
+      .on('mouseleave', function (d) {
+        nodes.style('fill', function(d){ return color(d.grp)})
+        links
+          .style('stroke', 'black')
+          .style('stroke-width', '1.5')                      
+          .style('opacity', 0.04)
+        labels
+        .style("font-size", 10 )
+        .attr("y", 0)
+      })
+    
+    
+})    
+    svg.append("text").attr("x", -80).attr("y", -25).text("Legend").style("font-size", "15px").style("font-weight", "bold").attr("alignment-baseline","middle");
+    svg.append("circle").attr("r", 7).attr("cx", -80).attr("cy", 0).attr("fill", "#7f4dff");
+    svg.append("text").attr("x", -64).attr("y", 2).text("Major Donated").style("font-size", "15px").attr("alignment-baseline","middle");
+    svg.append("circle").attr("r", 7).attr("cx", -80).attr("cy", 30).attr("fill", "#ffbe4d");
+    svg.append("text").attr("x", -64).attr("y", 32).text("Major Recieved").style("font-size", "15px").attr("alignment-baseline","middle");
+
+ 
+
+    
+</script>
