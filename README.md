@@ -1,8 +1,7 @@
-# Information-Visualization
+# CS-GY-6613 : Information-Visualization
+## New York University
 
-CSGY - 6313 - Information Visualization
-
-Includes :
+###Includes the following:
 
 - Weekly Assignments
 
